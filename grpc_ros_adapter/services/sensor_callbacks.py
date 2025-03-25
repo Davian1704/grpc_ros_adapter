@@ -12,6 +12,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image, CompressedImage, Imu, NavSatFix, PointCloud, PointCloud2, PointField
 from std_msgs.msg import Header
 from geometry_msgs.msg import Vector3, Pose, Quaternion, PoseWithCovarianceStamped, Point, TwistWithCovarianceStamped
+import logging
 
 def publish_image(request, context):
     if not hasattr(context, "bridge"):
@@ -216,6 +217,50 @@ def publish_pointcloud2(request, context):
 
     pub = RosPublisherRegistry.get_publisher(request.address.lower(), PointCloud2)
     pub.publish(pointcloud_msg)
+
+def publish_raw_sonar(request, context):
+    from marine_acoustic_msgs.msg import ProjectedSonarImage, PingInfo, SonarImageData
+    from geometry_msgs.msg import Vector3
+    
+    print(f"Received raw sonar request for {request.address}")
+    img = ProjectedSonarImage()
+    # Header
+    header = Header()
+    header.stamp = rh.Time.from_sec(request.data.header.timestamp)
+    header.frame_id = request.data.header.frameId
+    img.header = header
+    # PingInfo
+    ping_info = PingInfo()
+    ping_info.frequency = request.data.ping_info.frequency
+    ping_info.sound_speed = request.data.ping_info.sound_speed
+    ping_info.tx_beamwidths = list(request.data.ping_info.tx_beamwidths)
+    ping_info.rx_beamwidths = list(request.data.ping_info.rx_beamwidths)
+    img.ping_info = ping_info
+    
+    # Beam directions
+    img.beam_directions = []
+    for direction in request.data.beam_directions:
+        vec = Vector3()
+        vec.x = direction.x
+        vec.y = direction.y
+        vec.z = direction.z
+        img.beam_directions.append(vec)
+    
+    # Ranges
+    img.ranges = list(request.data.ranges)
+    # print(f"Ranges: {img.ranges}")
+    # Image data
+    img_data = SonarImageData()
+    img_data.is_bigendian = request.data.image.is_bigendian
+    img_data.dtype = request.data.image.dtype
+    img_data.beam_count = request.data.image.beam_count
+    img_data.data = request.data.image.data[0] if request.data.image.data else b''
+    img.image = img_data
+
+    pub = RosPublisherRegistry.get_publisher(request.address.lower(), ProjectedSonarImage)
+    print(f"Publishing ProjectedSonarImage for address: {request.address}")
+    print(img)
+    pub.publish(img)
 
 # expose only functions
 __all__ = [x[0] for x in inspect.getmembers(sys.modules[__name__], inspect.isfunction)]

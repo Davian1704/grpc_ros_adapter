@@ -112,6 +112,7 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
 
     def StreamSonarImage(self, request_iterator, context):
         for request in request_iterator:
+            print(f"Received sonar request for {request.address}")
             self.trigger_callbacks(self.StreamSonarImage, request)
 
         return sensor_streaming_pb2.StreamingResponse(success=True)
@@ -190,3 +191,10 @@ class SensorStreaming(sensor_streaming_pb2_grpc.SensorStreamingServicer):
             for c in callbacks:
                 c(response, context)
             yield response
+
+    def StreamRawSonarSensor(self, request_iterator, context):
+        for request in request_iterator:
+            print(f"Received sonar request for {request.address}")
+            self.trigger_callbacks(self.StreamRawSonarSensor, request)
+        
+        return sensor_streaming_pb2.StreamingResponse(success=True)

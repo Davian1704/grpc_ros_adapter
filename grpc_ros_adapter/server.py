@@ -49,7 +49,8 @@ def serve(server_ip, server_port):
         "StreamAisSensor" : [ publish_ais ],
         "StreamGnssSensor" : [ publish_gnss ],
         "StreamLidarSensor" : [publish_pointcloud],
-        "StreamPointCloud2" : [publish_pointcloud2]
+        "StreamPointCloud2" : [publish_pointcloud2],
+        "StreamRawSonarSensor" : [publish_raw_sonar],
     }
 
     sensor_streaming_pb2_grpc.add_SensorStreamingServicer_to_server(
