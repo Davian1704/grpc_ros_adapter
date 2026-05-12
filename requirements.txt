@@ -3,4 +3,4 @@ pyyaml
 rospkg
 opencv-python
 numpy
-protobuf
+protobuf==3.20

@@ -222,7 +222,7 @@ def publish_raw_sonar(request, context):
     from marine_acoustic_msgs.msg import ProjectedSonarImage, PingInfo, SonarImageData
     from geometry_msgs.msg import Vector3
     
-    print(f"Received raw sonar request for {request.address}")
+    # print(f"Received raw sonar request for {request.address}")
     img = ProjectedSonarImage()
     # Header
     header = Header()
@@ -258,8 +258,8 @@ def publish_raw_sonar(request, context):
     img.image = img_data
 
     pub = RosPublisherRegistry.get_publisher(request.address.lower(), ProjectedSonarImage)
-    print(f"Publishing ProjectedSonarImage for address: {request.address}")
-    print(img)
+    # print(f"Publishing ProjectedSonarImage for address: {request.address}")
+    # print(img)
     pub.publish(img)
 
 # expose only functions
